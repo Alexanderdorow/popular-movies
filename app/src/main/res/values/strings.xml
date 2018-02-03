@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="movie_item_content_description">movie thumbnail</string>
+    <string name="filter">Filter by: </string>
+    <string name="ops">Ops...</string>
+    <string name="error_message_singular">Something went wrong while trying to load the movie data, check your internet connection and try again.</string>
+    <string name="error_message_all">Something went wrong while trying to load the movies data, check your internet connection and try again.</string>
+    <string name="error_tv">No internet connection, click here to try again.</string>
+    <string name="try_again">try again</string>
+    <string name="popular_prefix">popular</string>
+    <string name="cancel">cancel</string>
+    <string name="top_rated_prefix">top_rated</string>
+
+    <string-array name="filter_options">
+        <item>most popular</item>
+        <item>highest rated</item>
+    </string-array>
+</resources>
