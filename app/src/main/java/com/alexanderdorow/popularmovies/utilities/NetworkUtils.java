@@ -19,10 +19,10 @@ import okhttp3.ResponseBody;
 
 public class NetworkUtils {
 
+    private static final String API_TOKEN = "INSERT YOUR API TOKEN HERE";
     private static final String MOVIE_DB_BASE_URL = "http://api.themoviedb.org/3/movie";
     private static final String API_KEY_PARAM = "api_key";
     private static final String PAGE_PARAM = "page";
-    private static final String API_TOKEN = "{INSERT YOUR TOKEN HERE}";
     public static final String BASE_IMAGE_PATH = "https://image.tmdb.org/t/p/w500/%s";
     private static final OkHttpClient client = new OkHttpClient();
 
