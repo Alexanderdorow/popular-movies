@@ -2,7 +2,6 @@ package com.alexanderdorow.popularmovies;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,19 +14,14 @@ import android.widget.GridLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.alexanderdorow.popularmovies.adapter.MoviesAdapter;
+import com.alexanderdorow.popularmovies.asynctask.FetchMovieDataTask;
 import com.alexanderdorow.popularmovies.dto.MovieItemDto;
+import com.alexanderdorow.popularmovies.dto.MovieRequest;
+import com.alexanderdorow.popularmovies.utilities.DialogUtils;
 import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener {
 
     private RecyclerView movieList;
     private MoviesAdapter adapter;
@@ -94,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                         page = 1;
                         switch (which) {
                             case 0:
-                                new FetchMovieDataTask(getString(R.string.popular_prefix)).execute();
+                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.POPULAR);
                                 break;
                             case 1:
-                                new FetchMovieDataTask(getString(R.string.top_rated_prefix)).execute();
+                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.TOP_RATED);
                                 break;
                         }
                     }
@@ -110,13 +104,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
             return;
         }
 
-        new FetchMovieDataTask("popular").execute();
+        new FetchMovieDataTask(this).execute(NetworkUtils.POPULAR);
     }
 
     @Override
-    public void onMovieSelected(String movieId) {
+    public void onMovieSelected(MovieItemDto movie) {
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-        intent.putExtra(Intent.EXTRA_UID, movieId);
+        intent.putExtra(DetailsActivity.EXTRA_MOVIE_DATA, movie);
         startActivity(intent);
     }
 
@@ -125,87 +119,51 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         loadMovieData();
     }
 
-    private class FetchMovieDataTask extends AsyncTask<Void, Void, List<MovieItemDto>> {
-
-        private final String prefix;
-
-        FetchMovieDataTask(String prefix) {
-            this.prefix = prefix;
+    @Override
+    public void onPreExecute() {
+        filmsLoaded = false;
+        if (page == 1) {
+            movieList.setVisibility(View.GONE);
+            error.setVisibility(View.GONE);
+            loading.setVisibility(View.VISIBLE);
         }
+    }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            filmsLoaded = false;
-            if (page == 1) {
-                movieList.setVisibility(View.GONE);
-                error.setVisibility(View.GONE);
-                loading.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        protected List<MovieItemDto> doInBackground(Void... voids) {
-            URL url = NetworkUtils.buildUrl(prefix, page);
-            List<MovieItemDto> movieList = new ArrayList<>();
-            try {
-                String responseFromUrl = NetworkUtils.getResponseFromUrl(url);
-                JSONObject jsonObject = new JSONObject(responseFromUrl);
-                totalPages = jsonObject.getInt("total_pages");
-
-                JSONArray moviesJson = jsonObject.getJSONArray("results");
-                for (int i = 0; i < moviesJson.length(); i++) {
-                    JSONObject movie = moviesJson.getJSONObject(i);
-                    MovieItemDto item = new MovieItemDto();
-                    item.setId(movie.getString("id"));
-                    item.setThumbnailUrl(String.format(NetworkUtils.BASE_IMAGE_PATH, movie.getString("poster_path")));
-                    item.setTitle(movie.getString("original_title"));
-                    movieList.add(item);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return movieList;
-        }
-
-        @Override
-        protected void onPostExecute(final List<MovieItemDto> movieItemDtos) {
-            super.onPostExecute(movieItemDtos);
-            if (movieItemDtos.isEmpty() && page < totalPages + 1) {
-                NetworkUtils.showNetworkError(R.string.error_message_all, R.string.ops,
-                        MainActivity.this,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                loadMovieData();
+    @Override
+    public void onPostExecute(MovieRequest movieRequest) {
+        if (movieRequest == null) {
+            DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
+                    MainActivity.this,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            loadMovieData();
+                        }
+                    },
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialogInterface) {
+                            if (adapter.getItemCount() > 0) {
+                                return;
                             }
-                        },
-                        null,
-                        new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                if (adapter.getItemCount() > 0) {
-                                    return;
-                                }
-                                error.setVisibility(View.VISIBLE);
-                                loading.setVisibility(View.GONE);
-                            }
-                        });
-                return;
-            }
-
-            if (page == 1) {
-                adapter.setItems(movieItemDtos);
-            } else {
-                adapter.addItems(movieItemDtos);
-            }
-
-            movieList.setVisibility(View.VISIBLE);
-            loading.setVisibility(View.GONE);
-            page++;
-            filmsLoaded = true;
+                            error.setVisibility(View.VISIBLE);
+                            loading.setVisibility(View.GONE);
+                        }
+                    });
+            return;
         }
+
+        totalPages = movieRequest.getTotalPages();
+
+        if (page == 1) {
+            adapter.setItems(movieRequest.getMovieItemDtos());
+        } else {
+            adapter.addItems(movieRequest.getMovieItemDtos());
+        }
+
+        movieList.setVisibility(View.VISIBLE);
+        loading.setVisibility(View.GONE);
+        page++;
+        filmsLoaded = true;
     }
 }

@@ -1,91 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
 
     <LinearLayout
-        android:id="@+id/root_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_poster"
+            android:layout_width="170dp"
+            android:layout_height="250dp"
+            android:layout_margin="8dp"
+            android:contentDescription="@string/movie_item_content_description" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/iv_poster"
-                android:layout_width="170dp"
-                android:layout_height="250dp"
-                android:layout_margin="8dp"
-                android:contentDescription="@string/movie_item_content_description" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp">
-
-                <TextView
-                    android:id="@+id/tv_movie_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="MOVIE WITH A BIG TITLE" />
-
-                <TextView
-                    android:id="@+id/tv_released_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    tools:text="2018-12-01" />
-
-                <TextView
-                    android:id="@+id/tv_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    tools:text="120 min" />
-
-                <android.support.v7.widget.AppCompatRatingBar
-                    android:id="@+id/rb_vote_average"
-                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numStars="5" />
-            </LinearLayout>
-        </LinearLayout>
-
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp">
 
             <TextView
-                android:id="@+id/tv_overview"
+                android:id="@+id/tv_movie_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:textColor="@color/white"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="MOVIE WITH A BIG TITLE" />
+
+            <TextView
+                android:id="@+id/tv_released_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:textSize="16sp"
-                tools:text="A very very long description of the movie goes here ......." />
-        </ScrollView>
+                tools:text="2018-12-01" />
+
+            <android.support.v7.widget.AppCompatRatingBar
+                android:id="@+id/rb_vote_average"
+                style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5" />
+        </LinearLayout>
     </LinearLayout>
-</FrameLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tv_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            tools:text="A very very long description of the movie goes here ......." />
+    </ScrollView>
+</LinearLayout>
