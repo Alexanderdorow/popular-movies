@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                         page = 1;
                         switch (which) {
                             case 0:
-                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.POPULAR);
+                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.POPULAR, String.valueOf(page));
                                 break;
                             case 1:
-                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.TOP_RATED);
+                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.TOP_RATED, String.valueOf(page));
                                 break;
                         }
                     }
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
             return;
         }
 
-        new FetchMovieDataTask(this).execute(NetworkUtils.POPULAR);
+        new FetchMovieDataTask(this).execute(NetworkUtils.POPULAR, String.valueOf(page));
     }
 
     @Override
