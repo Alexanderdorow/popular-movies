@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
 
     @Override
     public void onPostExecute(MovieRequest movieRequest) {
-        if (movieRequest == null) {
+        if (movieRequest == null || movieRequest.getMovieItemDtos() == null) {
             DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
                     MainActivity.this,
                     new DialogInterface.OnClickListener() {

@@ -1,12 +1,13 @@
 
 package com.alexanderdorow.popularmovies.dto;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-public class MovieItemDto implements Serializable {
+public class MovieItemDto implements Parcelable {
 
     @SerializedName("id")
     @Expose
@@ -51,8 +52,40 @@ public class MovieItemDto implements Serializable {
         return releaseDate;
     }
 
+    protected MovieItemDto(Parcel in) {
+        id = in.readInt();
+        voteAverage = in.readFloat();
+        title = in.readString();
+        posterPath = in.readString();
+        overview = in.readString();
+        releaseDate = in.readString();
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeFloat(voteAverage);
+        dest.writeString(title);
+        dest.writeString(posterPath);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MovieItemDto> CREATOR = new Parcelable.Creator<MovieItemDto>() {
+        @Override
+        public MovieItemDto createFromParcel(Parcel in) {
+            return new MovieItemDto(in);
+        }
+
+        @Override
+        public MovieItemDto[] newArray(int size) {
+            return new MovieItemDto[size];
+        }
+    };
 }

@@ -33,7 +33,7 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void loadMovieData() {
-        MovieItemDto movie = (MovieItemDto) getIntent().getSerializableExtra(EXTRA_MOVIE_DATA);
+        MovieItemDto movie = getIntent().getParcelableExtra(EXTRA_MOVIE_DATA);
         movieTitle.setText(movie.getTitle());
         movieReleasedDate.setText(movie.getReleaseDate().substring(0, 4));
         movieVoteAverage.setRating(movie.getVoteAverage() / 2);
