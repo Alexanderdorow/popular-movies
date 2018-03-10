@@ -20,6 +20,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder> {
 
     public interface OnMovieItemSelected {
         void onMovieSelected(MovieItemDto movie);
+
+        void onFavoriteClick(MovieItemDto movie, boolean selected);
+
     }
 
     public MoviesAdapter(OnMovieItemSelected onMovieItemSelected) {

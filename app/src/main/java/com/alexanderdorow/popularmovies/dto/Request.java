@@ -6,16 +6,16 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class MovieRequest {
+public class Request<T> {
 
     @SerializedName("total_pages")
     @Expose
     private int totalPages;
     @SerializedName("results")
     @Expose
-    private List<MovieItemDto> movieItemDtos;
+    private List<T> movieItemDtos;
 
-    public MovieRequest() {
+    public Request() {
     }
 
 
@@ -23,7 +23,7 @@ public class MovieRequest {
         return totalPages;
     }
 
-    public List<MovieItemDto> getMovieItemDtos() {
+    public List<T> getMovieItemDtos() {
         return movieItemDtos;
     }
 

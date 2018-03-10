@@ -1,7 +1,11 @@
 package com.alexanderdorow.popularmovies;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,12 +20,13 @@ import android.widget.TextView;
 
 import com.alexanderdorow.popularmovies.adapter.MoviesAdapter;
 import com.alexanderdorow.popularmovies.asynctask.FetchMovieDataTask;
+import com.alexanderdorow.popularmovies.data.entry.MovieEntry;
 import com.alexanderdorow.popularmovies.dto.MovieItemDto;
-import com.alexanderdorow.popularmovies.dto.MovieRequest;
+import com.alexanderdorow.popularmovies.dto.Request;
 import com.alexanderdorow.popularmovies.utilities.DialogUtils;
 import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView movieList;
     private MoviesAdapter adapter;
@@ -32,6 +37,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     private int lastVisibleItem, totalItemCount;
     private int totalPages = 1;
     private boolean filmsLoaded;
+    public static final String[] MOVIE_PROJECTION = {
+            MovieEntry.COLUMN_TITLE,
+            MovieEntry.COLUMN_POSTER_PATH,
+            MovieEntry.COLUMN_OVERVIEW,
+            MovieEntry.COLUMN_RELEASE_DATE,
+            MovieEntry.COLUMN_VOTE_AVG
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +127,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     }
 
     @Override
+    public void onFavoriteClick(MovieItemDto movie, boolean selected) {
+    }
+
+    @Override
     public void onClick(View view) {
         loadMovieData();
     }
@@ -130,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     }
 
     @Override
-    public void onPostExecute(MovieRequest movieRequest) {
+    public void onPostExecute(Request<MovieItemDto> movieRequest) {
         if (movieRequest == null || movieRequest.getMovieItemDtos() == null) {
             DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
                     MainActivity.this,
@@ -165,5 +181,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         loading.setVisibility(View.GONE);
         page++;
         filmsLoaded = true;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(this, MovieEntry.CONTENT_URI, MOVIE_PROJECTION, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

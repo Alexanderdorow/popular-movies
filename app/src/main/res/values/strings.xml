@@ -10,7 +10,7 @@
     <string name="popular_prefix">popular</string>
     <string name="cancel">cancel</string>
     <string name="top_rated_prefix">top_rated</string>
-
+    <string name="content_authority">com.alexanderdorow.popularmovies</string>
     <string-array name="filter_options">
         <item>most popular</item>
         <item>highest rated</item>
