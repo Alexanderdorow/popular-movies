@@ -1,11 +1,8 @@
 package com.alexanderdorow.popularmovies;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +23,9 @@ import com.alexanderdorow.popularmovies.dto.Request;
 import com.alexanderdorow.popularmovies.utilities.DialogUtils;
 import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener {
 
     private RecyclerView movieList;
     private MoviesAdapter adapter;
@@ -128,6 +127,31 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
 
     @Override
     public void onFavoriteClick(MovieItemDto movie, boolean selected) {
+        if (selected) {
+            saveMovieOnDatabase(movie);
+        } else {
+            deleteMovieOnDatabase(movie);
+        }
+    }
+
+    private void saveMovieOnDatabase(final MovieItemDto movie) {
+        getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, new ArrayList<ContentValues>() {{
+            add(getContentValues(movie));
+        }}.toArray(new ContentValues[1]));
+    }
+
+    private ContentValues getContentValues(MovieItemDto movie) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieEntry._ID, movie.getId());
+        contentValues.put(MovieEntry.COLUMN_TITLE, movie.getTitle());
+        contentValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
+        contentValues.put(MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
+        contentValues.put(MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+        contentValues.put(MovieEntry.COLUMN_VOTE_AVG, movie.getVoteAverage());
+        return contentValues;
+    }
+
+    private void deleteMovieOnDatabase(MovieItemDto movie) {
     }
 
     @Override
@@ -181,20 +205,5 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         loading.setVisibility(View.GONE);
         page++;
         filmsLoaded = true;
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this, MovieEntry.CONTENT_URI, MOVIE_PROJECTION, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }

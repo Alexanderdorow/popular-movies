@@ -14,7 +14,7 @@ import okhttp3.ResponseBody;
 
 public class NetworkUtils {
 
-    private static final String API_TOKEN = "921bcb1aff13a5edd91c9a9519ddde81";
+    private static final String API_TOKEN = "{{YOUR API KEY HERE}}";
     private static final String MOVIE_DB_BASE_URL = "http://api.themoviedb.org/3/movie";
     private static final String API_KEY_PARAM = "api_key";
     private static final String PAGE_PARAM = "page";

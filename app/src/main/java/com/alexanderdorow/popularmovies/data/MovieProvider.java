@@ -16,11 +16,6 @@ public class MovieProvider extends ContentProvider {
 
     public static final int CODE_MOVIE = 1;
     public static final int CODE_MOVIE_WITH_ID = 11;
-    public static final int CODE_TRAILER = 2;
-    public static final int CODE_TRAILER_WITH_MOVIE_ID = 22;
-    public static final int CODE_REVIEW = 3;
-    public static final int CODE_REVIEW_WITH_MOVIE_ID = 33;
-
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
     private MovieDbHelper openHelper;
@@ -30,10 +25,6 @@ public class MovieProvider extends ContentProvider {
         String authority = MovieContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, MovieContract.PATH_MOVIE, CODE_MOVIE);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", CODE_MOVIE_WITH_ID);
-        matcher.addURI(authority, MovieContract.PATH_TRAILER, CODE_TRAILER);
-        matcher.addURI(authority, MovieContract.PATH_TRAILER + "/#", CODE_TRAILER_WITH_MOVIE_ID);
-        matcher.addURI(authority, MovieContract.PATH_REVIEW, CODE_REVIEW);
-        matcher.addURI(authority, MovieContract.PATH_REVIEW + "/#", CODE_REVIEW_WITH_MOVIE_ID);
         return matcher;
     }
 
