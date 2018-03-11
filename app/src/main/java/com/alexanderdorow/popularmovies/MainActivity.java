@@ -36,13 +36,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     private int lastVisibleItem, totalItemCount;
     private int totalPages = 1;
     private boolean filmsLoaded;
-    public static final String[] MOVIE_PROJECTION = {
-            MovieEntry.COLUMN_TITLE,
-            MovieEntry.COLUMN_POSTER_PATH,
-            MovieEntry.COLUMN_OVERVIEW,
-            MovieEntry.COLUMN_RELEASE_DATE,
-            MovieEntry.COLUMN_VOTE_AVG
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     }
 
     private void deleteMovieOnDatabase(MovieItemDto movie) {
+        getContentResolver().delete(MovieEntry.CONTENT_URI, "_id = ?", new String[]{movie.getId()});
     }
 
     @Override

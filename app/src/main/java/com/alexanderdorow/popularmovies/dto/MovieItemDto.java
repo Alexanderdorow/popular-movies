@@ -11,7 +11,7 @@ public class MovieItemDto implements Parcelable {
 
     @SerializedName("id")
     @Expose
-    private int id;
+    private String id;
     @SerializedName("vote_average")
     @Expose
     private float voteAverage;
@@ -28,7 +28,7 @@ public class MovieItemDto implements Parcelable {
     @Expose
     private String releaseDate;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -53,7 +53,7 @@ public class MovieItemDto implements Parcelable {
     }
 
     protected MovieItemDto(Parcel in) {
-        id = in.readInt();
+        id = in.readString();
         voteAverage = in.readFloat();
         title = in.readString();
         posterPath = in.readString();
@@ -68,7 +68,7 @@ public class MovieItemDto implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeString(id);
         dest.writeFloat(voteAverage);
         dest.writeString(title);
         dest.writeString(posterPath);

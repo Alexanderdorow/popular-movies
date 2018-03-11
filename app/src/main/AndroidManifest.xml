@@ -29,6 +29,7 @@
                 android:value=".MainActivity" />
         </activity>
         <provider
+            android:exported="false"
             android:authorities="@string/content_authority"
             android:name=".data.MovieProvider"/>
     </application>
