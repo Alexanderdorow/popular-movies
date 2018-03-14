@@ -23,9 +23,12 @@ public class NetworkUtils {
     public static final String POPULAR = "popular";
     public static final String TOP_RATED = "top_rated";
 
-    public static URL buildUrl(String prefix, @Nullable String page) {
-        Uri.Builder builder = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(prefix)
+    public static URL buildUrl(String prefix, @Nullable String page, @Nullable String id) {
+        Uri.Builder builder = Uri.parse(MOVIE_DB_BASE_URL).buildUpon();
+        if(id != null){
+            builder.appendPath(id);
+        }
+        builder.appendPath(prefix)
                 .appendQueryParameter(API_KEY_PARAM, API_TOKEN);
         if (page != null) {
             builder.appendQueryParameter(PAGE_PARAM, page);
@@ -37,9 +40,9 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         return url;
     }
+
 
     public static String getResponseFromUrl(URL url) throws IOException {
         Request request = new Request.Builder().url(url).build();

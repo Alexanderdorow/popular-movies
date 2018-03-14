@@ -34,9 +34,10 @@ public class FetchMovieDataTask extends AsyncTask<String, Void, Request<MovieIte
         progressListener.onPreExecute();
     }
 
+    //
     @Override
     protected Request<MovieItemDto> doInBackground(String... strings) {
-        URL url = NetworkUtils.buildUrl(strings[0], strings[1]);
+        URL url = NetworkUtils.buildUrl(strings[0], strings[1], null);
         Request<MovieItemDto> movieRequest = null;
         try {
             String responseFromUrl = NetworkUtils.getResponseFromUrl(url);

@@ -13,18 +13,25 @@ public class Request<T> {
     private int totalPages;
     @SerializedName("results")
     @Expose
-    private List<T> movieItemDtos;
+    private List<T> data;
 
     public Request() {
     }
 
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    public void setData(List<T> data) {
+        this.data = data;
+    }
 
     public int getTotalPages() {
         return totalPages;
     }
 
-    public List<T> getMovieItemDtos() {
-        return movieItemDtos;
+    public List<T> getData() {
+        return data;
     }
 
 }

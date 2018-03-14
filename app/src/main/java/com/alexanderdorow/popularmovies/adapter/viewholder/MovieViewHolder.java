@@ -33,12 +33,17 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public void bind(final MovieItemDto movie) {
         this.movie = movie;
         movieTitle.setText(movie.getTitle());
+        //prevent to the recyclerView check my checkbox automatically
+        checkBox.setOnCheckedChangeListener(null);
+        checkBox.setChecked(movie.isFavorite());
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                movie.setFavorite(b);
                 onMovieItemSelected.onFavoriteClick(movie, b);
             }
         });
+
         GlideUtils.showFadedImage(itemView.getContext(), NetworkUtils.getImageUrl(movie.getPosterPath()), movieThumbnail);
     }
 

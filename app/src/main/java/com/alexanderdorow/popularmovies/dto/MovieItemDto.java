@@ -27,29 +27,70 @@ public class MovieItemDto implements Parcelable {
     @SerializedName("release_date")
     @Expose
     private String releaseDate;
+    private boolean isFavorite;
+
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public float getVoteAverage() {
         return voteAverage;
     }
 
+    public void setVoteAverage(float voteAverage) {
+        this.voteAverage = voteAverage;
+    }
+
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getPosterPath() {
         return posterPath;
     }
 
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+
     public String getOverview() {
         return overview;
     }
 
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
+
+    public static Creator<MovieItemDto> getCREATOR() {
+        return CREATOR;
+    }
+
+    public MovieItemDto() {
     }
 
     protected MovieItemDto(Parcel in) {
@@ -59,6 +100,7 @@ public class MovieItemDto implements Parcelable {
         posterPath = in.readString();
         overview = in.readString();
         releaseDate = in.readString();
+        isFavorite = in.readByte() != 0;
     }
 
     @Override
@@ -74,6 +116,7 @@ public class MovieItemDto implements Parcelable {
         dest.writeString(posterPath);
         dest.writeString(overview);
         dest.writeString(releaseDate);
+        dest.writeByte((byte) (isFavorite ? 1 : 0));
     }
 
     @SuppressWarnings("unused")
