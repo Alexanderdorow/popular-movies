@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,13 +31,17 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener {
 
+    public static final String CURRENT_MOVIE_CATEGORY = "currentMovieCategory";
+    public static final String OLD_LIST = "oldList";
+    public static final String CURRENT_PAGE = "currentPage";
     private RecyclerView movieList;
     private MoviesAdapter adapter;
     private ProgressBar loading;
     private TextView error;
     private int page = 1;
     private int visibleThreshold = 5;
-    private int lastVisibleItem, totalItemCount;
+    private int totalItemCount;
+    private int lastVisibleItem;
     private int totalPages = 1;
     private boolean filmsLoaded;
     public static final String[] MOVIE_PROJECTION = {
@@ -52,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.i("started", "");
         movieList = findViewById(R.id.rv_movie_list);
         loading = findViewById(R.id.loading);
         error = findViewById(R.id.tv_error);
@@ -76,7 +83,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                 }
             }
         });
-        loadMovieData();
+        if (savedInstanceState == null) {
+            loadMovieData();
+        } else {
+            page = savedInstanceState.getInt(CURRENT_PAGE);
+            category = savedInstanceState.getInt(CURRENT_MOVIE_CATEGORY);
+            adapter.setItems(savedInstanceState.<MovieItemDto>getParcelableArrayList(OLD_LIST));
+        }
     }
 
     @Override
@@ -245,5 +258,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         cursor.close();
         adapter.setItems(moviesFromDatabase);
         loading.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putInt(CURRENT_MOVIE_CATEGORY, category);
+        outState.putParcelableArrayList(OLD_LIST, adapter.getItems());
+        outState.putInt(CURRENT_PAGE, page);
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 }

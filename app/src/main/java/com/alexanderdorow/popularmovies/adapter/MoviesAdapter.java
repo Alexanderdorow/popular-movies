@@ -18,6 +18,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     private final OnMovieItemSelected onMovieItemSelected;
     private List<MovieItemDto> movies;
 
+    public ArrayList<MovieItemDto> getItems() {
+        return new ArrayList<>(movies);
+    }
+
     public interface OnMovieItemSelected {
         void onMovieSelected(MovieItemDto movie);
 
