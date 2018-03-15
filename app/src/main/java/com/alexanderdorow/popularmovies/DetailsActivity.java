@@ -143,17 +143,22 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
         new FetchMovieReviewInfoTask(new FetchMovieReviewInfoTask.ProgressListener() {
             @Override
             public void onPostExecute(Request<MovieReviewDto> movieRequest) {
-                List<MovieReviewDto> data = movieRequest.getData();
+                if(movieRequest == null){
+					return;
+				}
+				List<MovieReviewDto> data = movieRequest.getData();
                 if (data != null) {
                     reviewsAdapter.setItems(data);
-                    Log.i("", "");
                 }
             }
         }).execute(REVIEWS_PATH, movie.getId());
         new FetchMovieTrailerInfoTask(new FetchMovieTrailerInfoTask.ProgressListener() {
             @Override
             public void onPostExecute(Request<MovieTrailerDto> movieRequest) {
-                List<MovieTrailerDto> data = movieRequest.getData();
+                if(movieRequest == null){
+					return;
+				}               
+				List<MovieTrailerDto> data = movieRequest.getData();
                 if (data != null) {
                     trailersAdapter.setItems(data);
                 }
