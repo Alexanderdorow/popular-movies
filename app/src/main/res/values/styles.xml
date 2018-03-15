@@ -8,4 +8,45 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="detail_text">
+        <item name="android:textSize">@dimen/message_text_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="recycler_view">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="detail_title" parent="detail_text">
+        <item name="android:textSize">@dimen/movie_title_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="error_text" parent="detail_text">
+        <item name="layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:text">@string/error_tv</item>
+        <item name="android:textSize">@dimen/error_text_size</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="movie_item_text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:background">@color/transparent_blue</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">@dimen/movie_grid_padding</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/movie_grid_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="item_title" parent="detail_text">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

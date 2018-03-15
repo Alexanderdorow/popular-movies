@@ -32,19 +32,12 @@
 
                 <TextView
                     android:id="@+id/tv_movie_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
+                    style="@style/detail_title"
                     tools:text="MOVIE WITH A BIG TITLE" />
 
                 <TextView
                     android:id="@+id/tv_released_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
+                    style="@style/detail_text"
                     tools:text="2018-12-01" />
 
                 <android.support.v7.widget.AppCompatRatingBar
@@ -58,21 +51,16 @@
 
         <TextView
             android:id="@+id/tv_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/detail_text"
             android:padding="16dp"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
             tools:text="A very very long description of the movie goes here ......." />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_trailers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            style="@style/recycler_view" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_reviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            style="@style/recycler_view" />
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

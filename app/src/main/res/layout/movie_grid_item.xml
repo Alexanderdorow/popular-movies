@@ -13,15 +13,7 @@
 
     <TextView
         android:id="@+id/tv_movie_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/transparent_blue"
-        android:gravity="center_vertical"
-        android:padding="16dp"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        style="@style/movie_item_text"
         tools:text="MOVIE TITLE" />
 
 </FrameLayout>

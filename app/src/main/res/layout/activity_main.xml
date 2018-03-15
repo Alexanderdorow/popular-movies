@@ -6,19 +6,11 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_movie_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
+        style="@style/recycler_view" />
 
     <TextView
         android:id="@+id/tv_error"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/error_tv"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:visibility="gone" />
+        style="@style/error_text" />
 
     <ProgressBar
         android:id="@+id/loading"
