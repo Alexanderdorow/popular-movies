@@ -1,6 +1,5 @@
 package com.alexanderdorow.popularmovies;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -93,6 +92,15 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //REFRESH ITEMS WHEN USER BACK
+        if (category == 2) {
+            getMoviesFromDatabase();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -146,36 +154,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
         intent.putExtra(DetailsActivity.EXTRA_MOVIE_DATA, movie);
         startActivity(intent);
-    }
-
-    @Override
-    public void onFavoriteClick(MovieItemDto movie, boolean selected) {
-        if (selected) {
-            saveMovieOnDatabase(movie);
-        } else {
-            deleteMovieOnDatabase(movie);
-        }
-    }
-
-    private void saveMovieOnDatabase(final MovieItemDto movie) {
-        getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, new ArrayList<ContentValues>() {{
-            add(getContentValues(movie));
-        }}.toArray(new ContentValues[1]));
-    }
-
-    private ContentValues getContentValues(MovieItemDto movie) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MovieEntry._ID, movie.getId());
-        contentValues.put(MovieEntry.COLUMN_TITLE, movie.getTitle());
-        contentValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
-        contentValues.put(MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
-        contentValues.put(MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
-        contentValues.put(MovieEntry.COLUMN_VOTE_AVG, movie.getVoteAverage());
-        return contentValues;
-    }
-
-    private void deleteMovieOnDatabase(MovieItemDto movie) {
-        getContentResolver().delete(MovieEntry.CONTENT_URI, "_id = ?", new String[]{movie.getId()});
     }
 
     @Override

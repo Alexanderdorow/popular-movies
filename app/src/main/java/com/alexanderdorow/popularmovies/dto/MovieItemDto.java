@@ -27,7 +27,7 @@ public class MovieItemDto implements Parcelable {
     @SerializedName("release_date")
     @Expose
     private String releaseDate;
-    private boolean isFavorite;
+    private boolean isFavorite = false;
 
 
     public String getId() {

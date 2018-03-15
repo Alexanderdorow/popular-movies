@@ -11,33 +11,17 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/movie_item_content_description" />
 
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/tv_movie_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/transparent_blue"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <TextView
-            android:id="@+id/tv_movie_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            tools:text="MOVIE TITLE" />
-
-        <CheckBox
-            android:id="@+id/cb_favorite"
-            style="?android:attr/starStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="MOVIE TITLE" />
 
 </FrameLayout>

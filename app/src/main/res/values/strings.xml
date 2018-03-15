@@ -12,9 +12,17 @@
     <string name="top_rated_prefix">top_rated</string>
     <string name="content_authority">com.alexanderdorow.popularmovies</string>
     <string name="no_movies_on_database_error">You don\'t have favorite movies</string>
+    <string name="favorite">favorite</string>
+    <string name="movie_saved">Movie saved on database</string>
+    <string name="movie_removed">Movie removed from database</string>
+    <string name="choose">Choose</string>
     <string-array name="filter_options">
         <item>most popular</item>
         <item>highest rated</item>
         <item>favorites</item>
+    </string-array>
+    <string-array name="trailer_options">
+        <item>Open</item>
+        <item>Share</item>
     </string-array>
 </resources>
