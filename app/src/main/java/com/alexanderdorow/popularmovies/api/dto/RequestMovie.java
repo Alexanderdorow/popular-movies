@@ -1,28 +1,28 @@
 
-package com.alexanderdorow.popularmovies.dto;
+package com.alexanderdorow.popularmovies.api.dto;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Request<T> {
+public class RequestMovie {
 
     @SerializedName("total_pages")
     @Expose
     private int totalPages;
     @SerializedName("results")
     @Expose
-    private List<T> data;
+    private List<MovieItemDto> data;
 
-    public Request() {
+    public RequestMovie() {
     }
 
     public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
     }
 
-    public void setData(List<T> data) {
+    public void setData(List<MovieItemDto> data) {
         this.data = data;
     }
 
@@ -30,7 +30,7 @@ public class Request<T> {
         return totalPages;
     }
 
-    public List<T> getData() {
+    public List<MovieItemDto> getData() {
         return data;
     }
 

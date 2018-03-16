@@ -7,9 +7,8 @@ import android.widget.TextView;
 
 import com.alexanderdorow.popularmovies.R;
 import com.alexanderdorow.popularmovies.adapter.MoviesAdapter;
-import com.alexanderdorow.popularmovies.dto.MovieItemDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieItemDto;
 import com.alexanderdorow.popularmovies.utilities.GlideUtils;
-import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
 
 public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -30,7 +29,7 @@ public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnC
         this.movie = movie;
         movieTitle.setText(movie.getTitle());
         //prevent to the recyclerView check my checkbox automatically
-        GlideUtils.showFadedImage(itemView.getContext(), NetworkUtils.getImageUrl(movie.getPosterPath()), movieThumbnail);
+        GlideUtils.showFadedImage(itemView.getContext(), GlideUtils.getImageUrl(movie.getPosterPath()), movieThumbnail);
     }
 
     @Override

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/iv_poster"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/movie_item_content_description" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:id="@+id/tv_movie_title"
+                style="@style/detail_title"
+                tools:text="MOVIE WITH A BIG TITLE" />
+
+            <TextView
+                android:id="@+id/tv_released_date"
+                style="@style/detail_text"
+                tools:text="2018-12-01" />
+
+            <android.support.v7.widget.AppCompatRatingBar
+                android:id="@+id/rb_vote_average"
+                style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5" />
+
+            <TextView
+                android:id="@+id/tv_overview"
+                style="@style/detail_text"
+                tools:text="A very very long description of the movie goes here ......." />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_trailers"
+                style="@style/recycler_view" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_reviews"
+                style="@style/recycler_view" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</LinearLayout>

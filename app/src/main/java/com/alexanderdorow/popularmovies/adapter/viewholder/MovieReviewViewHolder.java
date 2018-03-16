@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.alexanderdorow.popularmovies.R;
-import com.alexanderdorow.popularmovies.dto.MovieReviewDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieReviewDto;
 
 public class MovieReviewViewHolder extends RecyclerView.ViewHolder {
 

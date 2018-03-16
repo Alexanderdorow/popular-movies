@@ -1,15 +1,14 @@
-package com.alexanderdorow.popularmovies;
+package com.alexanderdorow.popularmovies.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,32 +16,43 @@ import android.widget.GridLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.alexanderdorow.popularmovies.R;
 import com.alexanderdorow.popularmovies.adapter.MoviesAdapter;
-import com.alexanderdorow.popularmovies.asynctask.FetchMovieDataTask;
+import com.alexanderdorow.popularmovies.api.MovieApi;
+import com.alexanderdorow.popularmovies.api.dto.MovieItemDto;
+import com.alexanderdorow.popularmovies.api.dto.RequestMovie;
 import com.alexanderdorow.popularmovies.data.entry.MovieEntry;
-import com.alexanderdorow.popularmovies.dto.MovieItemDto;
-import com.alexanderdorow.popularmovies.dto.Request;
 import com.alexanderdorow.popularmovies.utilities.DialogUtils;
-import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
+import com.alexanderdorow.popularmovies.utilities.RetrofitUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, FetchMovieDataTask.ProgressListener, View.OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    public static final String CURRENT_MOVIE_CATEGORY = "currentMovieCategory";
-    public static final String OLD_LIST = "oldList";
-    public static final String CURRENT_PAGE = "currentPage";
-    private RecyclerView movieList;
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, Callback<RequestMovie> {
+
+    @BindView(R.id.rv_movie_list)
+    RecyclerView movieList;
+    @BindView(R.id.loading)
+    ProgressBar loading;
+    @BindView(R.id.tv_error)
+    TextView error;
+
     private MoviesAdapter adapter;
-    private ProgressBar loading;
-    private TextView error;
     private int page = 1;
     private int visibleThreshold = 5;
     private int totalItemCount;
     private int lastVisibleItem;
     private int totalPages = 1;
     private boolean filmsLoaded;
+    private MovieApi api;
+
     public static final String[] MOVIE_PROJECTION = {
             MovieEntry._ID,
             MovieEntry.COLUMN_TITLE,
@@ -57,16 +67,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("started", "");
-        movieList = findViewById(R.id.rv_movie_list);
-        loading = findViewById(R.id.loading);
-        error = findViewById(R.id.tv_error);
+        ButterKnife.bind(this);
+        api = RetrofitUtils.getMovieApi();
         adapter = new MoviesAdapter(this);
         movieList.setAdapter(adapter);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayout.VERTICAL, false);
+        GridLayoutManager gridLayoutManager;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            gridLayoutManager = new GridLayoutManager(this, 1, GridLayout.HORIZONTAL, false);
+        } else {
+            gridLayoutManager = new GridLayoutManager(this, 2, GridLayout.VERTICAL, false);
+        }
         movieList.setLayoutManager(gridLayoutManager);
-        movieList.setHasFixedSize(true);
-        error.setOnClickListener(this);
         movieList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -82,19 +93,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                 }
             }
         });
-        if (savedInstanceState == null) {
-            loadMovieData();
-        } else {
-            page = savedInstanceState.getInt(CURRENT_PAGE);
-            category = savedInstanceState.getInt(CURRENT_MOVIE_CATEGORY);
-            adapter.setItems(savedInstanceState.<MovieItemDto>getParcelableArrayList(OLD_LIST));
-        }
+
+        loadMovieData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //REFRESH ITEMS WHEN USER BACK
         if (category == 2) {
             getMoviesFromDatabase();
         }
@@ -118,6 +123,15 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         return super.onOptionsItemSelected(item);
     }
 
+    private void onPreExecuteRequest() {
+        filmsLoaded = false;
+        if (page == 1) {
+            movieList.setVisibility(View.GONE);
+            error.setVisibility(View.GONE);
+            loading.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void openFilterDialog() {
         AlertDialog builder = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.filter))
@@ -125,12 +139,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                     public void onClick(DialogInterface dialog, int which) {
                         page = 1;
                         category = which;
-                        switch (category) {
+                         switch (category) {
                             case 0:
-                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.POPULAR, String.valueOf(page));
+                                onPreExecuteRequest();
+                                api.getAllMovies(MovieApi.POPULAR, MovieApi.API_KEY, page).enqueue(MainActivity.this);
                                 break;
                             case 1:
-                                new FetchMovieDataTask(MainActivity.this).execute(NetworkUtils.TOP_RATED, String.valueOf(page));
+                                onPreExecuteRequest();
+                                api.getAllMovies(MovieApi.TOP_RATED, MovieApi.API_KEY, page).enqueue(MainActivity.this);
                                 break;
                             case 2:
                                 getMoviesFromDatabase();
@@ -142,11 +158,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     }
 
     private void loadMovieData() {
+        onPreExecuteRequest();
         if (page > totalPages) {
             return;
         }
-
-        new FetchMovieDataTask(this).execute(NetworkUtils.POPULAR, String.valueOf(page));
+        api.getAllMovies(MovieApi.POPULAR, MovieApi.API_KEY, page).enqueue(MainActivity.this);
     }
 
     @Override
@@ -156,58 +172,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         startActivity(intent);
     }
 
-    @Override
-    public void onClick(View view) {
+    @OnClick(R.id.tv_error)
+    public void onErrorClick(View view) {
         loadMovieData();
-    }
-
-    @Override
-    public void onPreExecute() {
-        filmsLoaded = false;
-        if (page == 1) {
-            movieList.setVisibility(View.GONE);
-            error.setVisibility(View.GONE);
-            loading.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void onPostExecute(Request<MovieItemDto> movieRequest) {
-        if (movieRequest == null || movieRequest.getData() == null) {
-            DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
-                    MainActivity.this,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            loadMovieData();
-                        }
-                    },
-                    new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialogInterface) {
-                            if (adapter.getItemCount() > 0) {
-                                return;
-                            }
-                            error.setText(R.string.error_message_all);
-                            error.setVisibility(View.VISIBLE);
-                            loading.setVisibility(View.GONE);
-                        }
-                    });
-            return;
-        }
-
-        totalPages = movieRequest.getTotalPages();
-
-        if (page == 1) {
-            adapter.setItems(movieRequest.getData());
-        } else {
-            adapter.addItems(movieRequest.getData());
-        }
-
-        movieList.setVisibility(View.VISIBLE);
-        loading.setVisibility(View.GONE);
-        page++;
-        filmsLoaded = true;
     }
 
     public void getMoviesFromDatabase() {
@@ -238,11 +205,54 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         loading.setVisibility(View.INVISIBLE);
     }
 
+
+    private void showErrorDialog() {
+        DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
+                MainActivity.this,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        loadMovieData();
+                    }
+                },
+                new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        if (adapter.getItemCount() > 0) {
+                            return;
+                        }
+                        error.setText(R.string.error_message_all);
+                        error.setVisibility(View.VISIBLE);
+                        loading.setVisibility(View.GONE);
+                    }
+                });
+    }
+
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putInt(CURRENT_MOVIE_CATEGORY, category);
-        outState.putParcelableArrayList(OLD_LIST, adapter.getItems());
-        outState.putInt(CURRENT_PAGE, page);
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onResponse(Call<RequestMovie> call, Response<RequestMovie> response) {
+        RequestMovie movieRequest = response.body();
+        if (movieRequest == null || movieRequest.getData() == null) {
+            showErrorDialog();
+            return;
+        }
+
+        totalPages = movieRequest.getTotalPages();
+
+        if (page == 1) {
+            adapter.setItems(movieRequest.getData());
+        } else {
+            adapter.addItems(movieRequest.getData());
+        }
+
+        movieList.setVisibility(View.VISIBLE);
+        loading.setVisibility(View.GONE);
+        page++;
+        filmsLoaded = true;
+
+    }
+
+    @Override
+    public void onFailure(Call<RequestMovie> call, Throwable t) {
+        showErrorDialog();
     }
 }

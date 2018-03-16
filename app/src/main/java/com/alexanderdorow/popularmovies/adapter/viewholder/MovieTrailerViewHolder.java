@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import com.alexanderdorow.popularmovies.R;
 import com.alexanderdorow.popularmovies.adapter.TrailersAdapter;
-import com.alexanderdorow.popularmovies.dto.MovieTrailerDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieTrailerDto;
 
 public class MovieTrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

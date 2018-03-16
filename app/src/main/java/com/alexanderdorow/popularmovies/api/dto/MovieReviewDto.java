@@ -1,4 +1,4 @@
-package com.alexanderdorow.popularmovies.dto;
+package com.alexanderdorow.popularmovies.api.dto;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

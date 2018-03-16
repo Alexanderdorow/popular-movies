@@ -10,6 +10,13 @@ import com.bumptech.glide.request.RequestOptions;
 
 public class GlideUtils {
 
+
+    private static final String BASE_IMAGE_PATH = "https://image.tmdb.org/t/p/w500/%s";
+
+    public static String getImageUrl(String posterPath) {
+        return String.format(BASE_IMAGE_PATH, posterPath);
+    }
+
     public static void showFadedImage(Context context, String url, ImageView imageView) {
         RequestOptions into = new RequestOptions()
                 .fitCenter();

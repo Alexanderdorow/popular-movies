@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.alexanderdorow.popularmovies.R;
 import com.alexanderdorow.popularmovies.adapter.viewholder.MovieTrailerViewHolder;
-import com.alexanderdorow.popularmovies.dto.MovieTrailerDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieTrailerDto;
 
 import java.util.ArrayList;
 import java.util.List;

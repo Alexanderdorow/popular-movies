@@ -1,4 +1,4 @@
-package com.alexanderdorow.popularmovies;
+package com.alexanderdorow.popularmovies.activities;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -9,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -17,62 +16,70 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexanderdorow.popularmovies.R;
 import com.alexanderdorow.popularmovies.adapter.ReviewsAdapter;
 import com.alexanderdorow.popularmovies.adapter.TrailersAdapter;
-import com.alexanderdorow.popularmovies.asynctask.FetchMovieReviewInfoTask;
-import com.alexanderdorow.popularmovies.asynctask.FetchMovieTrailerInfoTask;
+import com.alexanderdorow.popularmovies.api.MovieApi;
+import com.alexanderdorow.popularmovies.api.dto.MovieItemDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieReviewDto;
+import com.alexanderdorow.popularmovies.api.dto.MovieTrailerDto;
+import com.alexanderdorow.popularmovies.api.dto.RequestReview;
+import com.alexanderdorow.popularmovies.api.dto.RequestTrailer;
 import com.alexanderdorow.popularmovies.data.entry.MovieEntry;
-import com.alexanderdorow.popularmovies.dto.MovieItemDto;
-import com.alexanderdorow.popularmovies.dto.MovieReviewDto;
-import com.alexanderdorow.popularmovies.dto.MovieTrailerDto;
-import com.alexanderdorow.popularmovies.dto.Request;
 import com.alexanderdorow.popularmovies.utilities.GlideUtils;
-import com.alexanderdorow.popularmovies.utilities.NetworkUtils;
+import com.alexanderdorow.popularmovies.utilities.RetrofitUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class DetailsActivity extends AppCompatActivity implements TrailersAdapter.OnTrailerClickedListener {
 
+    @BindView(R.id.rb_vote_average)
+    RatingBar movieVoteAverage;
+    @BindView(R.id.iv_poster)
+    ImageView moviePoster;
+    @BindView(R.id.tv_movie_title)
+    TextView movieTitle;
+    @BindView(R.id.tv_overview)
+    TextView movieOverview;
+    @BindView(R.id.tv_released_date)
+    TextView movieReleasedDate;
+    @BindView(R.id.rv_trailers)
+    RecyclerView trailerList;
+    @BindView(R.id.rv_reviews)
+    RecyclerView reviewList;
 
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=%s";
-    public static final String REVIEWS_PATH = "reviews";
-    public static final String VIDEOS_PATH = "videos";
     public static final String TRAILER_MESSAGE = "Hey see this movie trailer: \n." + YOUTUBE_BASE_URL;
     public static final String TEXT_PLAIN = "text/plain";
+    public static final String EXTRA_MOVIE_DATA = "EXTRA_MOVIE_DATA";
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
-
-    public static final String EXTRA_MOVIE_DATA = "EXTRA_MOVIE_DATA";
-    private RatingBar movieVoteAverage;
-    private ImageView moviePoster;
-    private TextView movieTitle;
-    private TextView movieOverview;
-    private TextView movieReleasedDate;
     private MovieItemDto movie;
+    private MovieApi api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        trailersAdapter = new TrailersAdapter(this);
-        reviewsAdapter = new ReviewsAdapter();
-        movieVoteAverage = findViewById(R.id.rb_vote_average);
-        moviePoster = findViewById(R.id.iv_poster);
-        movieTitle = findViewById(R.id.tv_movie_title);
-        movieOverview = findViewById(R.id.tv_overview);
-        movieReleasedDate = findViewById(R.id.tv_released_date);
-        RecyclerView trailerList = findViewById(R.id.rv_trailers);
-        RecyclerView reviewList = findViewById(R.id.rv_reviews);
+        ButterKnife.bind(this);
         LinearLayoutManager trailerManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        trailerList.setLayoutManager(trailerManager);
-        trailerList.setHasFixedSize(true);
-        trailerList.setAdapter(trailersAdapter);
         LinearLayoutManager reviewManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        trailersAdapter = new TrailersAdapter(this);
+        trailerList.setLayoutManager(trailerManager);
+        trailerList.setNestedScrollingEnabled(false);
+        trailerList.setAdapter(trailersAdapter);
+        reviewsAdapter = new ReviewsAdapter();
         reviewList.setLayoutManager(reviewManager);
         reviewList.setNestedScrollingEnabled(false);
-        trailerList.setNestedScrollingEnabled(false);
         reviewList.setAdapter(reviewsAdapter);
+        api = RetrofitUtils.getMovieApi();
         loadMovieData();
     }
 
@@ -108,13 +115,14 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
         Toast.makeText(this, R.string.movie_removed, Toast.LENGTH_SHORT).show();
     }
 
+
     private void loadMovieData() {
         movie = getIntent().getParcelableExtra(EXTRA_MOVIE_DATA);
         movieTitle.setText(movie.getTitle());
         movieReleasedDate.setText(movie.getReleaseDate().substring(0, 4));
         movieVoteAverage.setRating(movie.getVoteAverage() / 2);
         movieOverview.setText(movie.getOverview());
-        GlideUtils.showFadedImage(DetailsActivity.this, NetworkUtils.getImageUrl(movie.getPosterPath()), moviePoster);
+        GlideUtils.showFadedImage(DetailsActivity.this, GlideUtils.getImageUrl(movie.getPosterPath()), moviePoster);
         getMovieExtraInfo();
     }
 
@@ -128,9 +136,11 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
             case R.id.action_favorite:
                 item.setChecked(!item.isChecked());
                 if (item.isChecked()) {
+                    movie.setFavorite(true);
                     item.setIcon(R.drawable.ic_favorite_selected);
                     saveMovieOnDatabase();
                 } else {
+                    movie.setFavorite(false);
                     deleteMovieOnDatabase();
                     item.setIcon(R.drawable.ic_favorite);
                 }
@@ -140,30 +150,42 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
     }
 
     public void getMovieExtraInfo() {
-        new FetchMovieReviewInfoTask(new FetchMovieReviewInfoTask.ProgressListener() {
+        api.getMovieReviewInfo(movie.getId(), MovieApi.API_KEY).enqueue(new Callback<RequestReview>() {
             @Override
-            public void onPostExecute(Request<MovieReviewDto> movieRequest) {
-                if(movieRequest == null){
-					return;
-				}
-				List<MovieReviewDto> data = movieRequest.getData();
+            public void onResponse(Call<RequestReview> call, Response<RequestReview> response) {
+                RequestReview requestReview = response.body();
+                if (requestReview == null) {
+                    return;
+                }
+                List<MovieReviewDto> data = requestReview.getData();
                 if (data != null) {
                     reviewsAdapter.setItems(data);
                 }
             }
-        }).execute(REVIEWS_PATH, movie.getId());
-        new FetchMovieTrailerInfoTask(new FetchMovieTrailerInfoTask.ProgressListener() {
+
             @Override
-            public void onPostExecute(Request<MovieTrailerDto> movieRequest) {
-                if(movieRequest == null){
-					return;
-				}               
-				List<MovieTrailerDto> data = movieRequest.getData();
+            public void onFailure(Call<RequestReview> call, Throwable t) {
+
+            }
+        });
+        api.getMovieTrailerInfo(movie.getId(), MovieApi.API_KEY).enqueue(new Callback<RequestTrailer>() {
+            @Override
+            public void onResponse(Call<RequestTrailer> call, Response<RequestTrailer> response) {
+                RequestTrailer requestTrailer = response.body();
+                if (requestTrailer == null) {
+                    return;
+                }
+                List<MovieTrailerDto> data = requestTrailer.getData();
                 if (data != null) {
                     trailersAdapter.setItems(data);
                 }
             }
-        }).execute(VIDEOS_PATH, movie.getId());
+
+            @Override
+            public void onFailure(Call<RequestTrailer> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -188,4 +210,5 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
                 }).create();
         builder.show();
     }
+
 }

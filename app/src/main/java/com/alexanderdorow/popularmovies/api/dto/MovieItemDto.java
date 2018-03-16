@@ -1,5 +1,5 @@
 
-package com.alexanderdorow.popularmovies.dto;
+package com.alexanderdorow.popularmovies.api.dto;
 
 import android.os.Parcel;
 import android.os.Parcelable;
