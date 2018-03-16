@@ -15,10 +15,10 @@ import java.util.List;
 public class ReviewsAdapter extends RecyclerView.Adapter<MovieReviewViewHolder> {
 
 
-    private List<MovieReviewDto> movies;
+    private List<MovieReviewDto> reviews;
 
     public ReviewsAdapter() {
-        movies = new ArrayList<>();
+        reviews = new ArrayList<>();
     }
 
     @Override
@@ -30,17 +30,20 @@ public class ReviewsAdapter extends RecyclerView.Adapter<MovieReviewViewHolder> 
 
     @Override
     public void onBindViewHolder(MovieReviewViewHolder holder, int position) {
-        holder.bind(movies.get(position));
+        holder.bind(reviews.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return movies.size();
+        return reviews.size();
     }
 
     public void setItems(List<MovieReviewDto> data) {
-        this.movies = data;
+        this.reviews = data;
         notifyDataSetChanged();
     }
 
+    public ArrayList<MovieReviewDto> getItems() {
+        return new ArrayList<>(reviews);
+    }
 }

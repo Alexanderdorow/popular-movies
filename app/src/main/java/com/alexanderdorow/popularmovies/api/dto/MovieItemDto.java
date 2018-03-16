@@ -119,7 +119,6 @@ public class MovieItemDto implements Parcelable {
         dest.writeByte((byte) (isFavorite ? 1 : 0));
     }
 
-    @SuppressWarnings("unused")
     public static final Parcelable.Creator<MovieItemDto> CREATOR = new Parcelable.Creator<MovieItemDto>() {
         @Override
         public MovieItemDto createFromParcel(Parcel in) {

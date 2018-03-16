@@ -17,6 +17,10 @@ public class TrailersAdapter extends RecyclerView.Adapter<MovieTrailerViewHolder
 
     private List<MovieTrailerDto> trailers;
 
+    public ArrayList<MovieTrailerDto> getItems() {
+        return new ArrayList<>(trailers);
+    }
+
     public interface OnTrailerClickedListener {
         void onTrailerClick(MovieTrailerDto dto);
     }

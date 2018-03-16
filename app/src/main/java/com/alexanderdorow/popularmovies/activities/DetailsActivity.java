@@ -40,6 +40,8 @@ import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity implements TrailersAdapter.OnTrailerClickedListener {
 
+    public static final String SAVED_INSTANCE_TRAILER = "trailer";
+    public static final String SAVED_INSTANCE_REVIEW = "review";
     @BindView(R.id.rb_vote_average)
     RatingBar movieVoteAverage;
     @BindView(R.id.iv_poster)
@@ -80,16 +82,14 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
         reviewList.setNestedScrollingEnabled(false);
         reviewList.setAdapter(reviewsAdapter);
         api = RetrofitUtils.getMovieApi();
-        loadMovieData();
+        loadMovieData(savedInstanceState);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.details_menu, menu);
-        MenuItem item = menu.findItem(R.id.action_favorite);
-        item.setIcon(movie.isFavorite() ? R.drawable.ic_favorite_selected : R.drawable.ic_favorite);
-        item.setChecked(movie.isFavorite());
-        return super.onCreateOptionsMenu(menu);
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(SAVED_INSTANCE_REVIEW, reviewsAdapter.getItems());
+        outState.putParcelableArrayList(SAVED_INSTANCE_TRAILER, trailersAdapter.getItems());
+        super.onSaveInstanceState(outState);
     }
 
     private void saveMovieOnDatabase() {
@@ -115,38 +115,19 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
         Toast.makeText(this, R.string.movie_removed, Toast.LENGTH_SHORT).show();
     }
 
-
-    private void loadMovieData() {
+    private void loadMovieData(Bundle savedInstanceState) {
         movie = getIntent().getParcelableExtra(EXTRA_MOVIE_DATA);
         movieTitle.setText(movie.getTitle());
         movieReleasedDate.setText(movie.getReleaseDate().substring(0, 4));
         movieVoteAverage.setRating(movie.getVoteAverage() / 2);
         movieOverview.setText(movie.getOverview());
         GlideUtils.showFadedImage(DetailsActivity.this, GlideUtils.getImageUrl(movie.getPosterPath()), moviePoster);
-        getMovieExtraInfo();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_favorite:
-                item.setChecked(!item.isChecked());
-                if (item.isChecked()) {
-                    movie.setFavorite(true);
-                    item.setIcon(R.drawable.ic_favorite_selected);
-                    saveMovieOnDatabase();
-                } else {
-                    movie.setFavorite(false);
-                    deleteMovieOnDatabase();
-                    item.setIcon(R.drawable.ic_favorite);
-                }
-                break;
+        if (savedInstanceState != null) {
+            reviewsAdapter.setItems(savedInstanceState.<MovieReviewDto>getParcelableArrayList(SAVED_INSTANCE_REVIEW));
+            trailersAdapter.setItems(savedInstanceState.<MovieTrailerDto>getParcelableArrayList(SAVED_INSTANCE_TRAILER));
+        } else {
+            getMovieExtraInfo();
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void getMovieExtraInfo() {
@@ -186,6 +167,38 @@ public class DetailsActivity extends AppCompatActivity implements TrailersAdapte
 
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.details_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_favorite);
+        item.setIcon(movie.isFavorite() ? R.drawable.ic_favorite_selected : R.drawable.ic_favorite);
+        item.setChecked(movie.isFavorite());
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.action_favorite:
+                item.setChecked(!item.isChecked());
+                if (item.isChecked()) {
+                    movie.setFavorite(true);
+                    item.setIcon(R.drawable.ic_favorite_selected);
+                    saveMovieOnDatabase();
+                } else {
+                    movie.setFavorite(false);
+                    deleteMovieOnDatabase();
+                    item.setIcon(R.drawable.ic_favorite);
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

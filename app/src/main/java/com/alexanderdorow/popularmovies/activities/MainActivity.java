@@ -21,6 +21,7 @@ import com.alexanderdorow.popularmovies.adapter.MoviesAdapter;
 import com.alexanderdorow.popularmovies.api.MovieApi;
 import com.alexanderdorow.popularmovies.api.dto.MovieItemDto;
 import com.alexanderdorow.popularmovies.api.dto.RequestMovie;
+import com.alexanderdorow.popularmovies.custom.CustomRecyclerView;
 import com.alexanderdorow.popularmovies.data.entry.MovieEntry;
 import com.alexanderdorow.popularmovies.utilities.DialogUtils;
 import com.alexanderdorow.popularmovies.utilities.RetrofitUtils;
@@ -37,8 +38,15 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnMovieItemSelected, Callback<RequestMovie> {
 
+    private static final String SAVED_INSTANCE_CATEGORY = "category";
+    private static final String SAVED_INSTANCE_PAGE = "page";
+    private static final String SAVED_INSTANCE_ITEM_COUNT = "item_count";
+    private static final String SAVED_INSTANCE_TOTAL_PAGES = "total_pages";
+    private static final String SAVED_INSTANCE_ITEMS = "items";
+
+
     @BindView(R.id.rv_movie_list)
-    RecyclerView movieList;
+    CustomRecyclerView movieList;
     @BindView(R.id.loading)
     ProgressBar loading;
     @BindView(R.id.tv_error)
@@ -50,9 +58,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
     private int totalItemCount;
     private int lastVisibleItem;
     private int totalPages = 1;
-    private boolean filmsLoaded;
-    private MovieApi api;
+    private int category;
+    private boolean filmsLoaded = true;
 
+    private MovieApi api;
     public static final String[] MOVIE_PROJECTION = {
             MovieEntry._ID,
             MovieEntry.COLUMN_TITLE,
@@ -61,7 +70,15 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
             MovieEntry.COLUMN_RELEASE_DATE,
             MovieEntry.COLUMN_VOTE_AVG
     };
-    private int category;
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(SAVED_INSTANCE_CATEGORY, category);
+        outState.putInt(SAVED_INSTANCE_PAGE, page);
+        outState.putInt(SAVED_INSTANCE_TOTAL_PAGES, totalPages);
+        outState.putParcelableArrayList(SAVED_INSTANCE_ITEMS, adapter.getItems());
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +86,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         api = RetrofitUtils.getMovieApi();
-        adapter = new MoviesAdapter(this);
-        movieList.setAdapter(adapter);
         GridLayoutManager gridLayoutManager;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             gridLayoutManager = new GridLayoutManager(this, 1, GridLayout.HORIZONTAL, false);
@@ -94,7 +109,26 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
             }
         });
 
-        loadMovieData();
+        if (savedInstanceState != null) {
+            restoreMovieData(savedInstanceState);
+        } else {
+            adapter = new MoviesAdapter(this);
+            movieList.setAdapter(adapter);
+            loadMovieData();
+        }
+    }
+
+    private void restoreMovieData(Bundle savedInstanceState) {
+        category = savedInstanceState.getInt(SAVED_INSTANCE_CATEGORY);
+        page = savedInstanceState.getInt(SAVED_INSTANCE_PAGE);
+        totalPages = savedInstanceState.getInt(SAVED_INSTANCE_TOTAL_PAGES);
+        List<MovieItemDto> movieItemDtos = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_ITEMS);
+        loading.setVisibility(View.GONE);
+        movieList.setVisibility(View.VISIBLE);
+        adapter = new MoviesAdapter(this);
+        adapter.setItems(movieItemDtos);
+        movieList.setAdapter(adapter);
+
     }
 
     @Override
@@ -139,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
                     public void onClick(DialogInterface dialog, int which) {
                         page = 1;
                         category = which;
-                         switch (category) {
+                        switch (category) {
                             case 0:
                                 onPreExecuteRequest();
                                 api.getAllMovies(MovieApi.POPULAR, MovieApi.API_KEY, page).enqueue(MainActivity.this);
@@ -179,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
 
     public void getMoviesFromDatabase() {
         loading.setVisibility(View.VISIBLE);
+        error.setVisibility(View.GONE);
         adapter.setItems(new ArrayList<MovieItemDto>());
         Cursor cursor = getContentResolver().query(MovieEntry.CONTENT_URI, MOVIE_PROJECTION, null, null, null);
         if (cursor == null || cursor.getCount() == 0) {
@@ -202,9 +237,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.OnM
         }
         cursor.close();
         adapter.setItems(moviesFromDatabase);
+        movieList.setVisibility(View.VISIBLE);
         loading.setVisibility(View.INVISIBLE);
     }
-
 
     private void showErrorDialog() {
         DialogUtils.showNetworkError(R.string.error_message_all, R.string.ops,
