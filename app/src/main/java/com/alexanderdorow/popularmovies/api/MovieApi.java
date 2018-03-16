@@ -13,7 +13,7 @@ public interface MovieApi {
 
     String POPULAR = "popular";
     String TOP_RATED = "top_rated";
-    String API_KEY = "921bcb1aff13a5edd91c9a9519ddde81";
+    String API_KEY = "{{INSERT YOUR API KEY HERE}}";
 
     @GET("/3/movie/{category}")
     Call<RequestMovie> getAllMovies(@Path("category") String category, @Query("api_key") String apiKey, @Query("page") int page);
